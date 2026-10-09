@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simulator Latihan Ticketing</title>
+<style>
+:root{--bg:#f6f7f9;--fg:#1c2230;--card:#fff;--bd:#d5d9e2;--acc:#1F4E9E;--mut:#5b6475;--ok:#17803d;--bad:#c0262d;--hl:#e8f0ff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141414;--fg:#e8e6e1;--card:#1e1e1e;--bd:#333;--acc:#4f7fd6;--mut:#a09d96;--ok:#4ade80;--bad:#f87171;--hl:#26303f}}
+:root[data-theme="dark"]{--bg:#141414;--fg:#e8e6e1;--card:#1e1e1e;--bd:#333;--acc:#4f7fd6;--mut:#a09d96;--ok:#4ade80;--bad:#f87171;--hl:#26303f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.away{opacity:0}
+.top{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--bd);background:var(--card)}
+.top b{font-size:16px}.sp{flex:1}
+button,select{font:inherit;padding:8px 11px;min-height:38px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--fg);cursor:pointer;max-width:100%}
+button.p{background:var(--acc);color:#fff;border-color:var(--acc)}button:disabled{opacity:.45;cursor:not-allowed}#menu{font-size:18px;padding:4px 10px}
+#back{display:none;position:fixed;inset:0;background:#0006;z-index:4}#back.open{display:block}
+#drawer{position:fixed;top:0;bottom:0;left:0;width:260px;max-width:82%;background:var(--card);border-right:1px solid var(--bd);transform:translateX(-100%);transition:transform .2s;z-index:5;padding:calc(14px + env(safe-area-inset-top,0px)) 12px 14px;overflow:auto}
+#drawer.open{transform:none}#drawer h3{margin:4px 8px 12px;font-size:18px}
+#drawer button.it{display:block;width:100%;text-align:left;border:0;background:none;padding:11px 8px;font-size:16px}#drawer button.it:hover{background:var(--hl)}
+#drawer label,#drawer p{display:block;margin:14px 8px 0;font-size:13px;color:var(--mut)}
+.wrap{max-width:1200px;margin:0 auto;padding:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:10px}
+#panel{display:none;max-height:44vh;overflow:auto}.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.ph b{font-size:16px}
+.sec{display:none;font-size:14px}.bar{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+code{background:var(--hl);padding:1px 6px;border-radius:5px;font:13px "Courier New",monospace}
+.ok{color:var(--ok)}.bad{color:var(--bad)}#res div{margin-top:3px}
+.hint{margin:0 0 4px 18px;font-size:13px;color:var(--mut)}.tw{overflow-x:auto}table{border-collapse:collapse;font-size:13px;width:100%}th,td{border:1px solid var(--bd);padding:5px 7px;text-align:left;vertical-align:top}th{background:var(--hl)}td.a{background:var(--hl)}td.a code{cursor:pointer}
+#term{background:#0b0f14;border-radius:10px;border:1px solid #1d2a3a;font:13px/1.45 "Courier New",ui-monospace,Menlo,monospace;color:#7CFC9A}
+#out{height:40vh;min-height:220px;overflow:auto;padding:10px}#out div{white-space:pre-wrap;word-break:break-word}
+.cmd{color:#9fd0ff}.err{color:#ff8b8b}.dim{color:#7a8aa0}.exp{color:#e8c872}
+.row{display:flex;align-items:center;border-top:1px solid #1d2a3a}.row span{padding-left:10px}
+#in{flex:1;min-width:0;background:transparent;border:0;color:#fff;font:16px "Courier New",ui-monospace,monospace;padding:10px;outline:0;text-transform:uppercase;-webkit-user-select:text;user-select:text}
+.foot{color:var(--mut);font-size:12px;margin:6px 2px}
+#gate{position:fixed;inset:0;background:var(--bg);z-index:20;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:calc(14px + env(safe-area-inset-top,0px)) 14px 20px}
+.gc{max-width:680px;width:100%;background:var(--card);border:2px solid var(--bad);border-radius:12px;padding:16px}.gc h2{margin:8px 0;font-size:20px;color:var(--bad)}.gc ol{padding-left:20px;font-size:14px}.gc li{margin-bottom:8px}.gc label{display:flex;gap:8px;align-items:flex-start;margin:12px 0;font-weight:600}
+#wm{position:fixed;inset:0;z-index:50;pointer-events:none}
+@media (min-width:900px){#main.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}#panel{max-height:76vh}#out{height:62vh}}
+@media print{body>*{display:none!important}body::before{content:"Pencetakan dinonaktifkan / Printing is disabled - SAMPLE";display:block;font:24px Arial;padding:40px}}
+</style></head>
+<body>
+<div id="wm"></div>
+<div id="gate"><div class="gc"><div class="bar" style="margin-top:0"><button data-l="0">Bahasa Indonesia</button><button data-l="1">English</button></div>
+<b data-k="title"></b><h2 data-k="g_h"></h2><ol id="gi"></ol>
+<label><input type="checkbox" id="gchk"><span data-k="g_chk"></span></label><button class="p" id="gbtn" disabled data-k="g_btn"></button></div></div>
+<header class="top"><button id="menu" aria-label="Menu">☰</button><b data-k="title"></b><span class="sp"></span>
+<select id="lsel"><option value="0">ID</option><option value="1">EN</option></select>
+<select id="gsel"><option value="AMA">Amadeus</option><option value="SAB">Sabre</option><option value="ABA">Abacus</option><option value="GAL">Galileo</option></select></header>
+<div id="back"></div>
+<nav id="drawer"><h3 data-k="title"></h3>
+<button class="it" data-s="tut" data-k="m_tut"></button><button class="it" data-s="ex" data-k="m_ex"></button><button class="it" data-s="task" data-k="m_task"></button><button class="it" data-s="ref" data-k="m_ref"></button><button class="it" data-s="prog" data-k="m_prog"></button><button class="it" data-s="dis" data-k="m_dis"></button>
+<label><input type="checkbox" id="explain"> <span data-k="l_exp"></span></label><p data-k="l_daily"></p></nav>
+<main class="wrap"><div id="main">
+<section class="card" id="panel"><div class="ph"><b id="pt"></b><button id="px">✕</button></div>
+<div class="sec" id="p-tut"><div data-k="p_tut"></div><div class="bar"><button class="p" id="tstart" data-k="b_start"></button><button id="tskip" data-k="b_skip"></button></div><div id="tstep"></div></div>
+<div class="sec" id="p-ex"><select id="exsel"></select><div class="bar"><button class="p" id="explay" data-k="b_play"></button></div><div class="tw"><table id="extab"></table></div></div>
+<div class="sec" id="p-task"><div class="bar" style="margin-top:0"><select id="task"></select><button id="more" data-k="b_more"></button></div><div id="tdate" class="foot"></div><div id="desc"></div>
+<div class="bar"><button class="p" id="go" data-k="b_go"></button><button id="chk" data-k="b_chk"></button><button id="sol" data-k="b_sol"></button></div><div id="res"></div></div>
+<div class="sec" id="p-prog"><div id="prog"></div><div class="bar"><button id="pgr" data-k="pg_r"></button></div><p class="foot" data-k="pg_n"></p></div><div class="sec" id="p-ref"><div class="tw"><table id="ref"></table></div><p class="foot" data-k="ref_note"></p></div>
+</section>
+<div><div id="term"><div id="out"></div><div class="row"><span>&gt;</span><input id="in" autocomplete="off" autocapitalize="characters" spellcheck="false"></div></div>
+<p class="foot" data-k="foot"></p></div></div></main>
+<script>
+const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,'0'),E=m=>{throw new Error(m)},num=n=>n.toLocaleString('en-US');
+let lang=(navigator.language||'id').toLowerCase().startsWith('id')?0:1;
+/* Kamus dua bahasa: [Indonesia, English] */
+const L={
+m_prog:["📊 Catatan progres","📊 Progress"],s_prog:["Catatan progres","Progress record"],same:["(sama di semua GDS, disederhanakan)","(same in all GDS, simplified)"],rt_l:["Rute: ","Route: "],
+b_sol:["Lihat jawaban","Show solution"],sol_h:["Jawaban (coba sendiri dulu):","Solution (try it yourself first):"],ok_all:["🎉 Semua benar! Tugas ini tercatat selesai.","🎉 All correct! This task is recorded as completed."],
+pg_t:["Hari ini: <b>{0}</b> tugas selesai","Today: <b>{0}</b> task(s) completed"],pg_a:["Total selesai: <b>{0}</b> tugas dalam <b>{1}</b> hari belajar","Total completed: <b>{0}</b> tasks over <b>{1}</b> study day(s)"],pg_c:["Jumlah pengecekan: {0} · rasio selesai: {1}%","Checks run: {0} · completion ratio: {1}%"],pg_r:["Hapus catatan progres","Clear progress"],pg_n:["Catatan hanya tersimpan di browser perangkat ini dan bisa hilang jika data browser dihapus.","Progress is saved only in this device's browser and may be lost if browser data is cleared."],
+h_s:["Ketik perintah simpan (ER / E) sampai muncul kode booking. Kalau ditolak, baca pesan merahnya: ia menyebut apa yang belum ada.","Type the save command (ER / E) until a booking code appears. If it is rejected, read the red message: it says what is missing."],
+h_nc:["Jumlah penumpang di PNR {0}, seharusnya {1}. Bayi tidak diketik di baris sendiri: ia menempel di nama orang dewasa.","The PNR has {0} passengers but needs {1}. An infant is not typed on its own line: it attaches to an adult name."],
+h_nm:["Belum cocok dengan soal: {0}. Periksa ejaan, gelar (MR/MRS/MSTR/MISS), dan tanggal lahir anak (CHD) atau bayi (INF). Format: BELAKANG/DEPAN GELAR.","Does not match the task: {0}. Check spelling, title (MR/MRS/MSTR/MISS), and the birth date for a child (CHD) or infant (INF). Format: SURNAME/FIRST TITLE."],
+h_nmm:["Masih ada {0} nama yang belum diketik.","{0} name(s) still missing."],
+h_g0:["Belum ada segmen {0}-{1} tanggal {2}. Cek availability dengan tanggal itu, lalu jual kursi dari baris yang tersedia.","No segment {0}-{1} on {2} yet. Check availability for that date, then sell a seat from an available line."],
+h_gs:["Status segmen {0}: kursi tidak terkonfirmasi. Hapus segmen itu, lalu pilih baris lain yang kelas Y-nya masih ada (angka Y lebih dari 0).","Segment status is {0}: the seat is not confirmed. Delete that segment and pick another line where class Y is still available (Y number above 0)."],
+h_gq:["Jumlah kursi di segmen {0}, seharusnya {1}. Hitung penumpang yang berkursi: dewasa dan anak ya, bayi tidak.","Seats in the segment: {0}, should be {1}. Count seated passengers: adults and children yes, infants no."],
+h_gc:["Kelas harus Y.","Class must be Y."],h_k:["Jumlah segmen di PNR {0}, seharusnya {1}. Hapus segmen yang salah dengan perintah hapus elemen.","The PNR has {0} segments, should be {1}. Delete the wrong segment with the delete-element command."],
+h_p:["Tambahkan kontak telepon kantor dengan nomor dari soal.","Add the office phone contact using the number in the task."],h_r:["Isi received from dengan namamu.","Fill received from with your name."],
+h_t:["Hitung tarif dulu, lalu terbitkan tiket. Setelah terbit, TK TL berubah menjadi TK OK dan baris FA muncul.","Price the fare first, then issue the ticket. After issuing, TK TL becomes TK OK and FA lines appear."],
+h_l:["TTL harus {0} (2 hari dari hari ini). Pasang ulang dengan perintah batas waktu tiket; TTL yang lewat atau salah tanggal ditolak.","TTL must be {0} (2 days from today). Set it again with the ticketing time limit command; a passed or wrong date is rejected."],
+c_v:["Tiket sudah di-void","Ticket voided"],h_v:["Gunakan VOID untuk tiket yang diterbitkan hari ini. Kalau ditolak karena bukan hari yang sama, itu aturan nyata: pakai REFUND.","Use VOID for a ticket issued today. If it is rejected because it is not the same day, that is the real rule: use REFUND."],
+c_rf:["Tiket sudah di-refund","Ticket refunded"],h_rf:["Tiket terbit kemarin tidak bisa di-void. Gunakan REFUND dan perhatikan potongannya.","A ticket issued yesterday cannot be voided. Use REFUND and note the deduction."],
+c_ri:["Segmen {0} berubah ke {1} dan tiket diterbitkan ulang (baris FO ada)","Segment {0} changed to {1} and ticket reissued (FO line present)"],h_ri:["Ketik REISSUE nomor-segmen tanggal-baru, contoh: REISSUE 2 {0}. Tanggal baru harus tersedia dan tidak sebelum segmen sebelumnya.","Type REISSUE segment-number new-date, e.g. REISSUE 2 {0}. The new date must be available and not before the previous segment."],
+e_nofa:["TIDAK ADA TIKET TERBIT","NO ISSUED TICKET"],e_vd:["VOID DITOLAK - tiket diterbitkan bukan di hari yang sama. Gunakan REFUND.","VOID REJECTED - the ticket was not issued today. Use REFUND."],
+o_void:["VOID OK - tiket dibatalkan tanpa biaya, kursi dilepas. TTL baru dipasang.","VOID OK - tickets cancelled at no charge, seats released. A new TTL was set."],
+o_rf:["REFUND per tiket (potongan 10% + IDR 100.000, ilustrasi):","REFUND per ticket (10% deduction + IDR 100,000, illustrative):"],o_rft:["TOTAL REFUND: IDR {0}","TOTAL REFUND: IDR {0}"],o_rfc:["ITINERARI DIBATALKAN. Uang kembali sesuai aturan tarif.","ITINERARY CANCELLED. Money returned under the fare rules."],
+e_ris:["REISSUE DITOLAK - format: REISSUE nomor-segmen tanggal-baru (contoh: REISSUE 2 {0})","REISSUE REJECTED - format: REISSUE segment-number new-date (e.g. REISSUE 2 {0})"],e_risn:["REISSUE DITOLAK - nomor segmen tidak ada","REISSUE REJECTED - segment number does not exist"],e_risd:["REISSUE DITOLAK - tanggal tidak valid atau sebelum segmen sebelumnya","REISSUE REJECTED - invalid date or before the previous segment"],
+o_ri:["REISSUE OK. Biaya perubahan: IDR {0}. Tiket baru diterbitkan; nomor lama tersimpan di baris FO.","REISSUE OK. Change fee: IDR {0}. New tickets issued; the old numbers are kept on FO lines."],
+o_nd:["SIMULASI: maju 1 hari (hari ke +{0}). Void tidak lagi bisa untuk tiket yang terbit sebelumnya.","SIMULATION: advanced 1 day (day +{0}). Void is no longer possible for earlier tickets."],
+s_vo:["Void: tiket batal di hari yang sama, kursi dilepas.","Void: the ticket is cancelled on the same day and the seat released."],s_re:["Reissue: pindahkan segmen ke-2 ke tanggal baru. Ada biaya perubahan dan nomor tiket baru.","Reissue: move segment 2 to a new date. A change fee and new ticket numbers apply."],
+s_nd:["Simulasi: maju 1 hari (void tidak lagi bisa).","Simulation: advance 1 day (void is no longer possible)."],s_rr:["Refund: uang kembali dikurangi potongan, itinerari dibatalkan.","Refund: money returned minus deductions; the itinerary is cancelled."],
+tt9:["Void: batalkan tiket yang baru terbit","Void: cancel a newly issued ticket"],tt10:["Refund: tiket terbit kemarin dibatalkan","Refund: ticket issued yesterday is cancelled"],tt11:["Reissue: ubah tanggal pulang","Reissue: change the return date"],
+nt3:["<br>Tiket baru diterbitkan hari ini, tetapi penumpang membatalkan. Tekan Mulai, lalu batalkan tiketnya dengan perintah yang tepat.","<br>The ticket was just issued today but the passenger cancels. Press Start, then cancel it with the right command."],
+nt4:["<br>Tiket diterbitkan kemarin dan penumpang membatalkan perjalanan. Tekan Mulai, lalu proses pengembalian uangnya.","<br>The ticket was issued yesterday and the passenger cancels the trip. Press Start, then process the money back."],
+nt5:["<br>Penumpang minta segmen ke-2 dipindah ke <b>{0}</b>. Tekan Mulai, lalu terbitkan ulang tiketnya.","<br>The passenger asks to move segment 2 to <b>{0}</b>. Press Start, then reissue the ticket."],
+title:['Simulator Latihan Ticketing','Ticketing Practice Simulator'],
+g_h:['⚠️ DISCLAIMER: baca dulu sebelum belajar','⚠️ DISCLAIMER: please read before you start'],
+g_chk:['Saya sudah membaca dan memahami semua poin di atas.','I have read and understood all the points above.'],g_btn:['Mulai belajar','Start learning'],
+m_tut:['📖 Tutorial','📖 Tutorial'],m_ex:['🧩 Contoh jadi','🧩 Worked examples'],m_task:['📝 Tugas hari ini','📝 Today\'s tasks'],m_ref:['📋 Referensi rumus','📋 Command reference'],m_dis:['⚠️ Disclaimer','⚠️ Disclaimer'],
+l_exp:['Tampilkan penjelasan tiap perintah','Explain every command I type'],l_daily:['Tugas berganti otomatis setiap hari.','Tasks change automatically every day.'],
+s_tut:['Tutorial','Tutorial'],s_ex:['Contoh yang sudah jadi','Worked examples'],s_task:['Tugas hari ini','Today\'s tasks'],s_ref:['Referensi rumus','Command reference'],
+p_tut:['<b>Apa itu GDS?</b> Sistem tempat agen travel melihat kursi, membuat booking (PNR), menghitung tarif, dan menerbitkan tiket. Konsepnya sama di semua GDS, hanya cara mengetiknya yang berbeda.<br>Urutan kerja: availability → jual kursi → nama → kontak → batas waktu tiket → received from → simpan → tarif → terbit tiket.<br>Mau lihat hasil jadi dulu? Buka menu ☰ lalu <b>Contoh jadi</b>.','<b>What is a GDS?</b> The system where travel agents see seats, create bookings (PNR), price fares and issue tickets. The concept is the same in every GDS; only the typing format differs.<br>Workflow: availability → sell seats → names → contact → ticketing time limit → received from → save → fare → issue ticket.<br>Want to see a finished result first? Open the ☰ menu, then <b>Worked examples</b>.'],
+b_start:['Mulai tutorial','Start tutorial'],b_skip:['Lewati langkah','Skip step'],b_play:['Putar contoh di terminal','Play example in terminal'],b_more:['Tugas lain','More tasks'],b_go:['Mulai tugas ini','Start this task'],b_chk:['Cek hasil saya','Check my result'],
+t_step:['Langkah {0}/{1}: {2}','Step {0}/{1}: {2}'],t_type:['Ketik di terminal:','Type in the terminal:'],t_fill:['Isi otomatis','Auto-fill'],t_done:['Tutorial selesai. Lanjut ke menu Tugas hari ini.','Tutorial complete. Continue with Today\'s tasks.'],
+ref_h:[['Fungsi','Amadeus','Sabre / Abacus','Galileo','Penjelasan'],['Function','Amadeus','Sabre / Abacus','Galileo','Explanation']],
+ref_note:['Abacus memakai format perintah Sabre. Klik contoh di kolom GDS aktif untuk mengisinya ke terminal. Tampilan PNR dan format bayi/anak disamakan di semua GDS. Format asli bisa berbeda antar kantor.','Abacus uses the Sabre command format. Click an example in the active GDS column to fill the terminal. The PNR display and infant/child format are unified across GDS. Real formats may differ between offices.'],
+foot:['Jadwal, tarif, dan nomor tiket hanyalah ilustrasi. Bukan sistem GDS asli. Semua tampilan bertanda SAMPLE.','Schedules, fares and ticket numbers are illustrative. This is not a real GDS. Everything is marked SAMPLE.'],
+ph:['Format {0}, contoh: {1}','{0} format, e.g. {1}'],g_act:['GDS aktif: {0}{1}. PNR yang sedang dibuat tetap ada.','Active GDS: {0}{1}. The PNR in progress is kept.'],g_aba:[' (memakai format perintah Sabre)',' (uses the Sabre command format)'],
+w_hi:['Selamat datang. Hari ini: {0}. Buka menu ☰ untuk Tutorial, Contoh jadi, dan Tugas.','Welcome. Today: {0}. Open the ☰ menu for Tutorial, Worked examples and Tasks.'],
+x_h:['CONTOH: {0}','EXAMPLE: {0}'],tu_s:['TUTORIAL DIMULAI - ikuti langkah di panel.','TUTORIAL STARTED - follow the steps in the panel.'],tk_h:['TUGAS: {0}','TASK: {0}'],
+t_date:['Tugas tanggal {0}. Berganti setiap hari.','Tasks for {0}. They change every day.'],th_cmd:['Perintah ({0})','Command ({0})'],th_fn:['Fungsi','Function'],note:['Catatan:','Note:'],
+e_help:['Daftar rumus ada di panel Referensi.','The command list is in the Reference panel.'],e_ig:['IGNORED - PNR DIBERSIHKAN','IGNORED - PNR CLEARED'],e_dac:[' - TIDAK ADA DI SIMULATOR',' - NOT IN THE SIMULATOR'],e_air:['AIRLINE TIDAK DITEMUKAN','AIRLINE NOT FOUND'],
+e_unk:['PERINTAH TIDAK DIKENAL DI {0}. Lihat menu Referensi.','UNKNOWN COMMAND IN {0}. See the Reference menu.'],e_lock:['TIKET SUDAH TERBIT - perubahan harus lewat void/reissue (belum disimulasikan). Ketik IG untuk mulai ulang.','TICKET ALREADY ISSUED - changes need void/reissue (not simulated). Type IG to start over.'],
+e_date:['TANGGAL TIDAK VALID','INVALID DATE'],e_route:['RUTE TIDAK ADA DI SIMULATOR. Bandara: CGK DPS SUB SIN KUL JED','ROUTE NOT IN THE SIMULATOR. Airports: CGK DPS SUB SIN KUL JED'],e_av:['CEK AVAILABILITY DULU','CHECK AVAILABILITY FIRST'],
+e_line:['NOMOR BARIS TIDAK ADA DI LAYAR AVAILABILITY','LINE NUMBER IS NOT ON THE AVAILABILITY SCREEN'],e_cls:['KELAS TIDAK ADA DI BARIS ITU','CLASS NOT ON THAT LINE'],e_nm1:['SIMULATOR: ketik satu penumpang per perintah (jumlah 1)','SIMULATOR: one passenger per command (count 1)'],
+e_nm:['FORMAT NAMA TIDAK VALID. Contoh: SANTOSO/RINA MRS','INVALID NAME FORMAT. Example: SANTOSO/RINA MRS'],e_chd:['FORMAT ANAK: (CHD/10MAR18)','CHILD FORMAT: (CHD/10MAR18)'],e_inf:['FORMAT BAYI: (INF/NAYLA MISS/05FEB26)','INFANT FORMAT: (INF/NAYLA MISS/05FEB26)'],
+e_td:['TANGGAL TTL TIDAK VALID','INVALID TTL DATE'],e_tp:['TTL SUDAH LEWAT (hari ini {0}). Pasang TTL di depan hari ini.','TTL ALREADY PASSED (today is {0}). Set a TTL after today.'],e_noel:['NOMOR ELEMEN TIDAK ADA','ELEMENT NUMBER DOES NOT EXIST'],e_nodel:['ELEMEN INI TIDAK BISA DIHAPUS','THIS ELEMENT CANNOT BE DELETED'],
+e_miss:['SIMPAN DITOLAK - belum ada: {0}','SAVE REJECTED - missing: {0}'],mi:[['nama penumpang','segmen (jual kursi)','kontak','batas waktu tiket','received from'],['passenger name','segment (sell seats)','contact','ticketing time limit','received from']],
+e_seat:['SIMPAN DITOLAK - jumlah kursi di segmen ({0}) tidak sama dengan jumlah penumpang berkursi ({1}). Ingat: bayi tidak memakai kursi.','SAVE REJECTED - seats in the segment ({0}) do not match seated passengers ({1}). Remember: infants take no seat.'],
+e_warn:['PERHATIAN: ada segmen bukan HK. Perbaiki sebelum tiket diterbitkan.','WARNING: a segment is not HK. Fix it before ticketing.'],e_nop:['TIDAK ADA PNR AKTIF','NO ACTIVE PNR'],e_nom:['PNR TIDAK DITEMUKAN','PNR NOT FOUND'],
+e_inc:['PNR BELUM LENGKAP - perlu nama dan segmen','PNR INCOMPLETE - needs names and segments'],e_nohk:['DITOLAK - ada segmen yang bukan HK','REJECTED - a segment is not HK'],
+f_h:['TARIF (ILUSTRASI, IDR)','FARE (ILLUSTRATIVE, IDR)'],f_c:['PAX   JML      TARIF      PAJAK      TOTAL','PAX   QTY       FARE        TAX      TOTAL'],f_t:['TOTAL SEMUA PENUMPANG: IDR {0}','TOTAL ALL PASSENGERS: IDR {0}'],
+e_ts:['TERBIT DITOLAK - simpan PNR dulu','ISSUE REJECTED - save the PNR first'],e_tf:['TERBIT DITOLAK - hitung tarif dulu','ISSUE REJECTED - price the fare first'],
+c_s:['PNR tersimpan','PNR saved'],c_n:['Nama penumpang sesuai soal (ejaan, gelar, tanggal lahir)','Passenger names match (spelling, title, birth dates)'],c_g:['Segmen {0}-{1} {2}: kelas Y, {3} kursi, status HK','Segment {0}-{1} {2}: class Y, {3} seats, status HK'],
+c_k:['Jumlah segmen benar (tidak ada yang lebih)','Correct number of segments (no extras)'],c_p:['Kontak telepon kantor sudah ada','Office phone contact present'],c_r:['RF terisi','RF filled'],c_t:['Tiket terbit (FA ada, TK OK)','Ticket issued (FA present, TK OK)'],c_l:['TTL sesuai ({0})','TTL correct ({0})'],
+x_ad:['dewasa','adult'],x_ch:['anak: wajib tanggal lahir','child: birth date required'],x_in:['bayi menempel di nama dewasa','infant attaches to an adult name'],
+s_av:['Cari penerbangan {0}-{1} tanggal {2}.','Search flights {0}-{1} on {2}.'],s_se:['Jual {0} kursi kelas Y dari baris 1 layar di atas.','Sell {0} seats, class Y, from line 1 of the screen above.'],s_nm:['Penumpang {0}: {1}.','Passenger {0}: {1}.'],
+s_ap:['Kontak kantor (A).','Office contact (A).'],s_tt:['Batas waktu tiket: 2 hari dari hari ini.','Ticketing time limit: 2 days from today.'],s_rf:['Nama pembuat booking.','Name of the booking creator.'],s_sv:['Simpan PNR. Kode booking muncul.','Save the PNR. The booking code appears.'],
+s_fa:['Hitung tarif sebelum terbit.','Price the fare before issuing.'],s_tk:['Terbitkan tiket: TK TL menjadi TK OK, baris FA muncul.','Issue the ticket: TK TL becomes TK OK and FA lines appear.'],
+n_inf:['4 orang tetapi hanya 3 kursi: bayi tidak memakai kursi.','4 people but only 3 seats: the infant takes no seat.'],
+w_inf:['{0} {1} (MRS) dengan bayi {2} (MISS, lahir {3})','{0} {1} (MRS) with infant {2} (MISS, born {3})'],k_d:['{0} {1} ({2}, anak, lahir {3})','{0} {1} ({2}, child, born {3})'],
+td:['{0}.<br>Rute: {1}. Kelas Y, {2} kursi, pilih baris 1-3.<br>Telepon kantor <b>{3}</b> · TTL <b>{4}</b> · RF nama kamu.{5}','{0}.<br>Route: {1}. Class Y, {2} seats, pick lines 1-3.<br>Office phone <b>{3}</b> · TTL <b>{4}</b> · RF your name.{5}'],
+tt1:['Pemula: pulang pergi {0}','Beginner: round trip {0}'],tt2:['Sekali jalan {0}','One-way {0}'],tt3:['Keluarga dengan anak, {0}','Family with a child, {0}'],tt4:['Keluarga dengan bayi, {0}','Family with an infant, {0}'],
+tt5:['Multi-city {0} keberangkatan: {1}','Multi-city, {0} flights: {1}'],tt6:['Rombongan 4 orang {0}','Group of 4, {0}'],tt7:['Sampai tiket terbit, {0}','Through to ticketing, {0}'],tt8:['Perbaiki PNR yang salah (5 kesalahan)','Fix the faulty PNR (5 errors)'],
+nt1:['<br>Berapa kursi yang dijual? Bayi tidak dihitung.','<br>How many seats are sold? Infants are not counted.'],nt2:['<br>Setelah simpan PNR: hitung tarif, lalu terbitkan tiket.','<br>After saving the PNR: price the fare, then issue the ticket.'],
+fx:['Tekan Mulai: PNR di terminal sudah terisi tetapi ada 5 kesalahan. Bandingkan dengan data ini, perbaiki, lalu simpan.<br>','Press Start: the PNR in the terminal is pre-filled but has 5 errors. Compare it with this data, fix it, then save.<br>'],
+gi:[['<b>Alat belajar independen.</b> Tidak berafiliasi dengan, disponsori, atau didukung oleh Amadeus, Sabre, Abacus, Galileo, atau Travelport. Semua nama merek adalah milik pemiliknya masing-masing.','<b>Bukan sistem asli.</b> Semua jadwal, harga, nomor tiket, dan kode booking adalah data fiktif. Hasilnya bukan tiket atau dokumen perjalanan yang sah dan tidak bisa dipakai untuk bepergian.','<b>Format perintah disederhanakan</b> dari pengetahuan umum. Di tempat kerja, format bisa berbeda antar kantor dan versi. Selalu cocokkan dengan panduan resmi atau training perusahaan.','<b>Hanya untuk belajar.</b> Dilarang memakai simulator, tangkapan layar, atau hasilnya untuk menipu, memalsukan tiket atau dokumen, atau tujuan melawan hukum lainnya.','<b>Seluruh halaman bertanda air SAMPLE.</b> Jangan menyebarkan tangkapan layar seolah-olah itu dokumen atau sistem asli. Pembatasan salin dan cetak hanyalah penghalang; tidak ada cara menjamin tangkapan layar mustahil dilakukan.','<b>Jangan memasukkan data pribadi asli</b> (nama, nomor paspor, kontak) milik siapa pun. Gunakan nama contoh.','<b>Tidak menggantikan pelatihan atau sertifikasi resmi</b>, dan tidak menjamin pekerjaan atau hasil seleksi.'],
+['<b>Independent learning tool.</b> Not affiliated with, sponsored by, or endorsed by Amadeus, Sabre, Abacus, Galileo, or Travelport. All brand names belong to their respective owners.','<b>Not a real system.</b> All schedules, prices, ticket numbers and booking codes are fictional. The results are not valid tickets or travel documents and cannot be used to travel.','<b>Command formats are simplified</b> from general knowledge. At work, formats may differ between offices and versions. Always check against official guides or your company training.','<b>For learning only.</b> Do not use the simulator, screenshots or its output to deceive anyone, forge tickets or documents, or for any other unlawful purpose.','<b>Every page carries a SAMPLE watermark.</b> Do not share screenshots as if they were real documents or a real system. Copy and print restrictions are only a deterrent; screenshots cannot be made impossible.','<b>Do not enter real personal data</b> (names, passport numbers, contacts) of anyone. Use sample names.','<b>Does not replace official training or certification</b>, and does not guarantee a job or selection result.']]
+};
+const tr=(k,...a)=>{let s=L[k][lang];a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s};
+
+const MON=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'],DN=['MON','TUE','WED','THU','FRI','SAT','SUN'];
+const AP={CGK:'JAKARTA SOEKARNO-HATTA',DPS:'DENPASAR BALI',SUB:'SURABAYA JUANDA',SIN:'SINGAPORE CHANGI',KUL:'KUALA LUMPUR',JED:'JEDDAH'};
+const AL={GA:'GARUDA INDONESIA',QG:'CITILINK',JT:'LION AIR',ID:'BATIK AIR',SQ:'SINGAPORE AIRLINES',MH:'MALAYSIA AIRLINES',AK:'AIRASIA',SV:'SAUDIA'};
+const TC={GA:'126',QG:'188',JT:'990',ID:'236',SQ:'618',MH:'232',AK:'807',SV:'065'};
+const GN={AMA:'Amadeus',SAB:'Sabre',ABA:'Abacus',GAL:'Galileo'};let G='AMA';
+const T0=new Date(),today=new Date(T0.getFullYear(),T0.getMonth(),T0.getDate());
+const fmt=d=>pad(d.getDate())+MON[d.getMonth()],tstr=fmt(today)+String(today.getFullYear()).slice(2),dow=d=>((d.getDay()+6)%7)+1;
+const addDays=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n),dayOff=n=>fmt(addDays(today,n)),ttl=dayOff(2),dmy=d=>fmt(d)+String(d.getFullYear()).slice(2);
+const R={};[['CGK','DPS',110,1,['GA','QG','JT','ID'],1200000],['CGK','SUB',95,0,['GA','QG','JT','ID'],900000],['CGK','SIN',115,1,['GA','SQ','JT'],1800000],['CGK','KUL',120,1,['GA','MH','AK'],1700000],['CGK','JED',570,-4,['GA','SV'],9500000],['DPS','SIN',170,0,['SQ','GA','JT'],2000000],['SIN','KUL',70,0,['SQ','MH','AK'],900000]].forEach(([a,b,du,tz,al,f])=>{R[a+b]={du,tz,al,f};R[b+a]={du,tz:-tz,al,f}});
+function rng(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19}let a=h>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const hm=m=>{m=((m%1440)+1440)%1440;return pad(Math.floor(m/60))+pad(m%60)},tm=h=>+h.slice(0,2)*60+ +h.slice(2);
+
+const OPS=[['avail',['Cek availability','Check availability'],['Mencari penerbangan: tanggal, asal, tujuan. Nomor baris pada hasilnya dipakai saat menjual kursi.','Searches flights by date, origin and destination. Line numbers in the result are used when selling seats.']],
+['sell',['Jual kursi','Sell seats'],['Jumlah kursi, kelas, nomor baris dari layar availability terakhir. Status: HK = terkonfirmasi, HL = daftar tunggu, UC = ditolak.','Number of seats, class, line number from the last availability screen. Status: HK = confirmed, HL = waitlisted, UC = rejected.']],
+['name',['Nama penumpang','Passenger name'],['Satu penumpang per perintah, sesuai paspor: BELAKANG/DEPAN GELAR. Anak: (CHD/tgl lahir). Bayi menempel di nama dewasa: (INF/nama gelar/tgl lahir) dan tidak memakai kursi.','One passenger per command, as on the passport: SURNAME/FIRST TITLE. Child: (CHD/birth date). Infant attaches to an adult name: (INF/name title/birth date) and takes no seat.']],
+['phone',['Kontak','Contact'],['Telepon agen (A) atau penumpang (M). Wajib sebelum PNR disimpan.','Agency phone (A) or passenger phone (M). Required before saving the PNR.']],
+['ttl',['Batas waktu tiket','Ticketing time limit'],['Tanggal terakhir tiket harus terbit. Jika lewat, booking batal otomatis.','Last date the ticket must be issued. If it passes, the booking is cancelled automatically.']],
+['rf',['Received from','Received from'],['Nama orang yang membuat booking.','Name of the person who made the booking.']],
+['save',['Simpan PNR','Save PNR'],['Menyimpan dan membuat kode booking. Ketik lagi untuk menampilkan.','Saves the PNR and creates the booking code. Type it again to redisplay.']],
+['show',['Tampilkan PNR','Display PNR'],['Menampilkan PNR aktif, atau PNR berdasarkan kode booking.','Displays the active PNR, or a PNR by booking code.']],
+['del',['Hapus elemen','Delete element'],['Menghapus elemen bernomor. Hapus dari nomor terbesar dulu agar nomor tidak bergeser.','Deletes a numbered element. Delete from the highest number first so numbers do not shift.']],
+['fare',['Hitung tarif','Price fare'],['Menghitung dan menyimpan harga per jenis penumpang. Wajib sebelum terbit tiket.','Prices and stores the fare per passenger type. Required before issuing a ticket.']],
+['tkt',['Terbit tiket','Issue ticket'],['TK TL menjadi TK OK dan baris FA muncul. Di sistem asli perintahnya lebih rumit; di simulator disederhanakan menjadi TTP.','TK TL becomes TK OK and FA lines appear. Real systems use a more complex command; the simulator simplifies it to TTP.']]];
+const SY={AMA:{avail:/^AN(\d{2})([A-Z]{3})([A-Z]{3})([A-Z]{3})$/,sell:/^SS(\d+)([A-Z])(\d+)$/,name:/^NM(\d+)(.+)$/,phone:/^AP ?(.{5,})$/,ttl:/^TKTL(\d{2})([A-Z]{3})$/,rf:/^RF ?(.+)$/,save:/^(?:ER|ET)$/,show:/^RT ?([A-Z0-9]{6})?$/,del:/^XE(\d+)$/,fare:/^FXP$/,tkt:/^TTP$/},
+SAB:{avail:/^1(\d{2})([A-Z]{3})([A-Z]{3})([A-Z]{3})$/,sell:/^0(\d+)([A-Z])(\d+)$/,name:/^-(.+)$/,phone:/^9(.{5,})$/,ttl:/^7TAW(\d{2})([A-Z]{3})$/,rf:/^6(.+)$/,save:/^(?:E|ER)$/,show:/^\*([A-Z0-9]{6})?$/,del:/^X(\d+)$/,fare:/^WP$/,tkt:/^TTP$/},
+GAL:{avail:/^A(\d{2})([A-Z]{3})([A-Z]{3})([A-Z]{3})$/,sell:/^N(\d+)([A-Z])(\d+)$/,name:/^N\.(.+)$/,phone:/^P\.(.{5,})$/,ttl:/^T\.TAU\/(\d{2})([A-Z]{3})$/,rf:/^R\.(.+)$/,save:/^(?:ER|E)$/,show:/^\*([A-Z0-9]{6})?$/,del:/^X(\d+)$/,fare:/^FQ$/,tkt:/^TTP$/}};SY.ABA=SY.SAB;
+const B={AMA:{avail:a=>`AN${a[0]}${a[1]}${a[2]}${a[3]}`,sell:a=>`SS${a[0]}${a[1]}${a[2]}`,name:a=>`NM1${a[0]}`,phone:a=>`AP ${a[0]}`,ttl:a=>`TKTL${a[0]}`,rf:a=>`RF ${a[0]}`,save:()=>'ER',show:()=>'RT',del:a=>`XE${a[0]}`,fare:()=>'FXP',tkt:()=>'TTP'},
+SAB:{avail:a=>`1${a[0]}${a[1]}${a[2]}${a[3]}`,sell:a=>`0${a[0]}${a[1]}${a[2]}`,name:a=>`-${a[0]}`,phone:a=>'9'+a[0].replace(/ /g,''),ttl:a=>`7TAW${a[0]}`,rf:a=>`6${a[0]}`,save:()=>'E',show:()=>'*',del:a=>`X${a[0]}`,fare:()=>'WP',tkt:()=>'TTP'},
+GAL:{avail:a=>`A${a[0]}${a[1]}${a[2]}${a[3]}`,sell:a=>`N${a[0]}${a[1]}${a[2]}`,name:a=>`N.${a[0]}`,phone:a=>'P.'+a[0].replace(/ /g,''),ttl:a=>`T.TAU/${a[0]}`,rf:a=>`R.${a[0]}`,save:()=>'ER',show:()=>'*',del:a=>`X${a[0]}`,fare:()=>'FQ',tkt:()=>'TTP'}};
+const build=(g,op,a)=>B[g==='ABA'?'SAB':g][op](a||[]);
+const SAMPLE={avail:['20','DEC','CGK','DPS'],sell:[1,'Y',1],name:['SANTOSO/RINA MRS'],phone:['CGK 021-7770000 - A'],ttl:[ttl],rf:['WISNU'],save:[],show:[],del:[2],fare:[],tkt:[]};
+const ex=(g,op)=>build(g,op,SAMPLE[op]);
+
+let S,hist=[],hi=0,lastOp=null,tut=-1;
+const reset=()=>{S={av:null,names:[],segs:[],aps:[],tk:null,rf:null,rl:null,dirty:false,fare:null,fa:[],fp:null,fv:null,fo:[],rm:[],simDay:0,issueDay:0,voided:false,refunded:false,refundAmt:0}};reset();
+function resolve(dd,mon,isTtl){const m=MON.indexOf(mon);if(m<0)return null;let d=new Date(today.getFullYear(),m,+dd);if(d.getMonth()!==m)return null;if(d<today){if(isTtl)return'PAST';d=new Date(today.getFullYear()+1,m,+dd)}return d}
+function mkAvail(from,to,d){const r=R[from+to],g=rng(from+to+fmt(d)),tt=['0600','0710','0850','1015','1230','1455','1620','1805','1940','2105'],s=Math.floor(g()*2),L=[];
+for(let i=0;i<5;i++){const dep=tt[s+i*2];L.push({al:r.al[Math.floor(g()*r.al.length)],no:100+Math.floor(g()*900),dep,arr:hm(tm(dep)+r.du+r.tz*60),c:{J:Math.floor(g()*5),Y:i<3?5+Math.floor(g()*5):Math.floor(g()*10),B:Math.floor(g()*10),M:Math.floor(g()*10)}})}return{from,to,d,L}}
+const segLine=(s,n)=>`${String(n).padStart(2)}  ${s.al} ${s.no} ${s.cls} ${s.date} ${s.dow} ${s.from}${s.to} ${s.st}${s.n}  ${s.dep} ${s.arr}`;
+function els(){const e=[];S.names.forEach((n,i)=>e.push({k:'nm',i,t:n.text}));S.segs.forEach((s,i)=>e.push({k:'sg',i,s}));S.aps.forEach((a,i)=>e.push({k:'ap',i,t:'AP '+a}));
+if(S.tk)e.push({k:'tk',t:S.tk.type==='OK'?`TK OK${tstr}/JKT1A0001`:`TK TL${S.tk.date}/JKT1A0001`});S.fa.forEach(f=>e.push({k:'fa',t:f}));S.fo.forEach(f=>e.push({k:'fo',t:'FO '+f}));if(S.fp)e.push({k:'fp',t:'FP '+S.fp});if(S.fv)e.push({k:'fv',t:'FV '+S.fv});if(S.rf)e.push({k:'rf',t:'RF '+S.rf});S.rm.forEach(f=>e.push({k:'rm',t:f}));return e}
+const show=()=>[`RP/JKT1A0001      ${tstr}      ${S.rl||'------'}${S.dirty?'   (UNSAVED)':''}`,...els().map((e,i)=>{const n=i+1;return e.k==='nm'?`${n}.${e.t}`:e.k==='sg'?segLine(e.s,n):`${String(n).padStart(2)} ${e.t}`})].join('\n');
+function price(){const base=S.segs.reduce((a,s)=>a+(R[s.from+s.to]?R[s.from+s.to].f:1500000),0),f={ADT:1,CHD:.75,INF:.1},c={ADT:S.names.filter(n=>!n.chd).length,CHD:S.names.filter(n=>n.chd).length,INF:S.names.filter(n=>n.inf).length},rows=[];let tot=0;
+for(const t of['ADT','CHD','INF'])if(c[t]){const b=Math.round(base*f[t]/1000)*1000,tx=Math.round(b*.12/1000)*1000;rows.push({t,c:c[t],b,tx,tt:b+tx});tot+=(b+tx)*c[t]}return{rows,tot}}
+
+function run(c){let m;lastOp=null;
+if(c==='HELP'||c==='?'){openS('ref');return tr('e_help')}
+if(c==='IG'){reset();return tr('e_ig')}
+if(m=c.match(/^DAC ?([A-Z]{3})$/))return AP[m[1]]?`${m[1]} - ${AP[m[1]]}`:m[1]+tr('e_dac');
+if(m=c.match(/^DAN (.+)$/)){const k=Object.keys(AL).find(k=>k===m[1]||AL[k].includes(m[1]));return k?`${k} - ${AL[k]}`:tr('e_air')}
+if(c==='NEXTDAY'){S.simDay++;lastOp='nextday';return tr('o_nd',S.simDay)}
+if(c==='VOID'){if(!S.fa.length)E(tr('e_nofa'));if(S.issueDay!==S.simDay)E(tr('e_vd'));S.fa=[];S.fo=[];S.fp=null;S.fv=null;S.tk={type:'TL',date:ttl};S.voided=true;S.fare=null;lastOp='void';return tr('o_void')+'\n\n'+show()}
+if(c==='REFUND'){if(!S.fa.length)E(tr('e_nofa'));const am=S.fa.map(f=>+f.match(/IDR(\d+)/)[1]),rf=am.map(v=>Math.max(0,Math.round(v*.9)-100000)),tot=rf.reduce((x,y)=>x+y,0);
+const ln=am.map((v,i)=>`${i+1}  IDR ${num(v)} -> IDR ${num(rf[i])}`);S.rm.push('RM REFUND IDR '+tot);S.fa=[];S.fo=[];S.fp=null;S.fv=null;S.tk=null;S.segs=[];S.refunded=true;S.refundAmt=tot;lastOp='refund';return[tr('o_rf'),...ln,tr('o_rft',num(tot)),tr('o_rfc'),'',show()].join('\n')}
+if(m=c.match(/^REISSUE ?(.*)$/)){if(!S.fa.length)E(tr('e_nofa'));const x=m[1].match(/^(\d+) (\d{2})([A-Z]{3})$/);if(!x)E(tr('e_ris',dayOff(40)));const i=+x[1]-1,sg=S.segs[i];if(!sg)E(tr('e_risn'));
+const d=resolve(x[2],x[3]),pv=S.segs[i-1];if(!d||(pv&&d<resolve(pv.date.slice(0,2),pv.date.slice(2))))E(tr('e_risd'));const a2=mkAvail(sg.from,sg.to,d).L[0];
+S.segs[i]={...sg,al:a2.al,no:a2.no,date:fmt(d),dow:dow(d),dep:a2.dep,arr:a2.arr,st:'HK'};S.fo=S.fa.map(f=>f.split(' ')[2].split('/')[0]);S.fare=price();doIssue();lastOp='reissue';return tr('o_ri',num(250000*S.names.length))+'\n\n'+show()}
+let op=null,a;for(const[o,re]of Object.entries(SY[G])){const x=c.match(re);if(x){op=o;a=x.slice(1);break}}
+if(!op)E(tr('e_unk',GN[G].toUpperCase()));
+if(S.fa.length&&['name','sell','del','ttl'].includes(op))E(tr('e_lock'));
+let r;
+if(op==='avail'){const d=resolve(a[0],a[1]);if(!d)E(tr('e_date'));if(!R[a[2]+a[3]])E(tr('e_route'));S.av=mkAvail(a[2],a[3],d);const v=S.av;
+r=[`${fmt(d)} ${DN[dow(d)-1]}  ${v.from}-${v.to}`,...v.L.map((f,i)=>`${i+1}  ${(f.al+f.no).padEnd(6)} ${Object.entries(f.c).map(([k,x])=>k+x).join(' ')}   ${v.from} ${f.dep}  ${v.to} ${f.arr}`)].join('\n')}
+else if(op==='sell'){if(!S.av)E(tr('e_av'));const n=+a[0],f=S.av.L[a[2]-1];if(!f)E(tr('e_line'));const s=f.c[a[1]];if(s===undefined)E(tr('e_cls'));
+S.segs.push({al:f.al,no:f.no,cls:a[1],date:fmt(S.av.d),dow:dow(S.av.d),from:S.av.from,to:S.av.to,dep:f.dep,arr:f.arr,n,st:s>=n?'HK':s===0?'UC':'HL'});S.dirty=true;S.fare=null;r=show()}
+else if(op==='name'){if(a.length>1&&a[0]!=='1')E(tr('e_nm1'));const tx=a[a.length-1].trim(),x=tx.match(/^([A-Z]+)\/([A-Z]+(?: [A-Z]+)*) (MR|MRS|MS|MSTR|MISS)(?:\((INF|CHD)\/([^)]+)\))?$/);
+if(!x)E(tr('e_nm'));if(x[4]==='CHD'&&!/^\d{2}[A-Z]{3}\d{2}$/.test(x[5]))E(tr('e_chd'));if(x[4]==='INF'&&!/^[A-Z]+(?: [A-Z]+)* (MSTR|MISS)\/\d{2}[A-Z]{3}\d{2}$/.test(x[5]))E(tr('e_inf'));
+S.names.push({text:tx,chd:x[4]==='CHD',inf:x[4]==='INF'});S.dirty=true;S.fare=null;r=show()}
+else if(op==='phone'){S.aps.push(a[0].trim());S.dirty=true;r=show()}
+else if(op==='ttl'){const d=resolve(a[0],a[1],true);if(!d)E(tr('e_td'));if(d==='PAST')E(tr('e_tp',tstr));S.tk={type:'TL',date:a[0]+a[1]};S.dirty=true;r=show()}
+else if(op==='rf'){S.rf=a[0].trim();S.dirty=true;r=show()}
+else if(op==='del'){const e=els()[a[0]-1];if(!e)E(tr('e_noel'));if(['fa','fp','fv','fo','rm'].includes(e.k)||e.k==='tk'&&S.tk.type==='OK')E(tr('e_nodel'));
+if(e.k==='nm')S.names.splice(e.i,1);if(e.k==='sg')S.segs.splice(e.i,1);if(e.k==='ap')S.aps.splice(e.i,1);if(e.k==='tk')S.tk=null;if(e.k==='rf')S.rf=null;S.dirty=true;S.fare=null;r=show()}
+else if(op==='save'){if(!S.dirty&&S.rl)r=show();else{const w=L.mi[lang],mi=[];if(!S.names.length)mi.push(w[0]);if(!S.segs.length)mi.push(w[1]);if(!S.aps.length)mi.push(w[2]);if(!S.tk)mi.push(w[3]);if(!S.rf)mi.push(w[4]);
+if(mi.length)E(tr('e_miss',mi.join(', ')));const b=S.segs.find(s=>s.n!==S.names.length);if(b)E(tr('e_seat',b.n,S.names.length));
+S.rl=S.rl||Array.from({length:6},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join('');S.dirty=false;r=show()+(S.segs.some(s=>s.st!=='HK')?'\n\n'+tr('e_warn'):'')}}
+else if(op==='show'){if(!S.names.length&&!S.segs.length)E(tr('e_nop'));if(a[0]&&a[0]!==S.rl)E(tr('e_nom'));r=show()}
+else if(op==='fare'){if(!S.names.length||!S.segs.length)E(tr('e_inc'));if(S.segs.some(s=>s.st!=='HK'))E(tr('e_nohk'));const p=price();S.fare=p;
+r=[tr('f_h'),tr('f_c'),...p.rows.map(x=>`${x.t}   ${String(x.c).padEnd(3)} ${num(x.b).padStart(10)} ${num(x.tx).padStart(10)} ${num(x.tt).padStart(10)}`),'',tr('f_t',num(p.tot))].join('\n')}
+else if(op==='tkt'){if(!S.rl||S.dirty)E(tr('e_ts'));if(!S.fare)E(tr('e_tf'));if(S.segs.some(s=>s.st!=='HK'))E(tr('e_nohk'));
+const al=S.segs[0].al,p=S.fare.rows,tn=()=>Array.from({length:10},()=>Math.floor(Math.random()*10)).join('');S.fa=[];
+S.names.forEach(n=>{S.fa.push(`FA PAX ${TC[al]}-${tn()}/ET${al}/IDR${p.find(x=>x.t===(n.chd?'CHD':'ADT')).tt}/${tstr}/JKT1A0001`);if(n.inf)S.fa.push(`FA INF ${TC[al]}-${tn()}/ET${al}/IDR${p.find(x=>x.t==='INF').tt}/${tstr}/JKT1A0001`)});
+S.fp='CASH/IDR';S.fv=al;S.tk={type:'OK'};S.issueDay=S.simDay;r='OK ETICKET\n\n'+show()}
+lastOp=op;return r}
+
+const out=$('#out');
+function print(t,cls){const d=document.createElement('div');if(cls)d.className=cls;d.textContent=t;out.appendChild(d);out.scrollTop=out.scrollHeight}
+function exec(raw){const c=raw.trim().replace(/\s+/g,' ').toUpperCase();if(!c)return;print('> '+c,'cmd');
+try{print(run(c));if(lastOp){if($('#explain').checked){const o=OPS.concat(POST).find(x=>x[0]===lastOp);print(`↳ ${o[1][lang]}: ${o[2][lang]}`,'exp')}if(tut>=0&&TUT[tut]===lastOp){tut++;tutRender()}}}catch(e){print(e.message,'err')}}
+$('#in').addEventListener('keydown',e=>{const i=e.target;if(e.key==='Enter'){if(i.value.trim()){hist.push(i.value);hi=hist.length}exec(i.value);i.value=''}
+else if(e.key==='ArrowUp'&&hist.length){hi=Math.max(0,hi-1);i.value=hist[hi];e.preventDefault()}else if(e.key==='ArrowDown'&&hist.length){hi=Math.min(hist.length,hi+1);i.value=hist[hi]||'';e.preventDefault()}});
+
+/* Menu, panel, bahasa */
+const SK={tut:'s_tut',ex:'s_ex',task:'s_task',ref:'s_ref',prog:'s_prog'};let curS='tut';
+const drawer=o=>{$('#drawer').classList.toggle('open',o);$('#back').classList.toggle('open',o)};
+$('#menu').onclick=()=>drawer(!$('#drawer').classList.contains('open'));$('#back').onclick=()=>drawer(false);
+function openS(s){curS=s;if(s==='prog')progRender();$('#panel').style.display='block';$('#main').classList.add('two');document.querySelectorAll('.sec').forEach(e=>e.style.display=e.id==='p-'+s?'block':'none');$('#pt').textContent=tr(SK[s]);drawer(false)}
+document.querySelectorAll('#drawer .it').forEach(b=>b.onclick=()=>{if(b.dataset.s==='dis'){$('#gate').style.display='flex';$('#gchk').checked=true;$('#gbtn').disabled=false;drawer(false)}else openS(b.dataset.s)});
+$('#px').onclick=()=>{$('#panel').style.display='none';$('#main').classList.remove('two')};
+function setG(g){G=g;$('#gsel').value=g;$('#in').placeholder=tr('ph',GN[g],ex(g,'avail'));refTable();exTable();tutRender();print(tr('g_act',GN[g],g==='ABA'?tr('g_aba'):''),'dim')}
+$('#gsel').onchange=e=>setG(e.target.value);
+function refTable(){const col={AMA:1,SAB:2,ABA:2,GAL:3}[G],h=L.ref_h[lang];$('#ref').innerHTML='<tr>'+h.map(x=>`<th>${x}</th>`).join('')+'</tr>'+OPS.map(o=>`<tr><td><b>${o[1][lang]}</b></td>${['AMA','SAB','GAL'].map((g,i)=>`<td class="${i+1===col?'a':''}"><code ${i+1===col?'data-i="'+ex(g,o[0])+'"':''}>${ex(g,o[0])}</code></td>`).join('')}<td>${o[2][lang]}</td></tr>`).join('')+POST.map(o=>{const c=o[3].replace('{D}',dayOff(40));return`<tr><td><b>${o[1][lang]}</b></td><td colspan="3" class="a"><code data-i="${c}">${c}</code> <span class="foot">${tr('same')}</span></td><td>${o[2][lang]}</td></tr>`}).join('');
+document.querySelectorAll('#ref code[data-i]').forEach(c=>c.onclick=()=>{$('#in').value=c.dataset.i;$('#in').focus()})}
+function applyLang(){document.documentElement.lang=lang?'en':'id';document.title=tr('title');document.querySelectorAll('[data-k]').forEach(e=>e.innerHTML=tr(e.dataset.k));
+$('#gi').innerHTML=L.gi[lang].map(x=>`<li>${x}</li>`).join('');$('#lsel').value=lang;$('#pt').textContent=tr(SK[curS]);
+const xs=$('#exsel').value||0;$('#exsel').innerHTML='';EXS().forEach((e,i)=>$('#exsel').add(new Option(e.t[lang],i)));$('#exsel').value=xs;
+const ts=sel.value||0;loadTasks();sel.value=ts;sel.onchange();$('#in').placeholder=tr('ph',GN[G],ex(G,'avail'));refTable();exTable();tutRender()}
+$('#lsel').onchange=e=>{lang=+e.target.value;applyLang()};document.querySelectorAll('#gate [data-l]').forEach(b=>b.onclick=()=>{lang=+b.dataset.l;applyLang()});
+$('#gchk').onchange=e=>$('#gbtn').disabled=!e.target.checked;$('#gbtn').onclick=()=>{$('#gate').style.display='none';$('#in').focus()};
+
+/* Tutorial */
+const TUT=['avail','sell','name','phone','ttl','rf','save','show','fare','tkt'];
+function tutRender(){const b=$('#tstep');if(tut<0){b.innerHTML='';return}if(tut>=TUT.length){b.innerHTML='<p class="ok"><b>'+tr('t_done')+'</b></p>';return}
+const o=OPS.find(x=>x[0]===TUT[tut]),c=ex(G,TUT[tut]);b.innerHTML=`<p><b>${tr('t_step',tut+1,TUT.length,o[1][lang])}</b><br>${o[2][lang]}<br>${tr('t_type')} <code>${c}</code> <button id="tfill">${tr('t_fill')}</button></p>`;$('#tfill').onclick=()=>{$('#in').value=c;$('#in').focus()}}
+$('#tstart').onclick=()=>{reset();tut=0;print(tr('tu_s'),'dim');tutRender()};$('#tskip').onclick=()=>{if(tut>=0){tut++;tutRender()}};
+
+/* Contoh jadi */
+function EXS(){const D=(tx,nm,r)=>[tx,r?`${nm}, ${tr(r)}`:nm];return[
+{t:['1 penumpang, pulang pergi (CGK-DPS)','1 passenger, round trip (CGK-DPS)'],n:[D('SANTOSO/RINA MRS','Rina Santoso','x_ad')],g:[['CGK','DPS','20DEC'],['DPS','CGK','24DEC']],q:1,ph:'CGK 021-7770000 - A'},
+{t:['3 penumpang: 2 dewasa + 1 anak (CGK-KUL)','3 passengers: 2 adults + 1 child (CGK-KUL)'],n:[D('HARTONO/BUDI MR','Budi Hartono','x_ad'),D('HARTONO/DEWY MRS','Dewy Hartono','x_ad'),D('HARTONO/RAFI MSTR(CHD/14JAN19)','Rafi','x_ch')],g:[['CGK','KUL','10NOV'],['KUL','CGK','14NOV']],q:3,ph:'CGK 021-5551234 - A'},
+{t:['4 keberangkatan: multi-city (4 segmen)','4 flights: multi-city (4 segments)'],n:[D('LESTARI/DEWI MRS','Dewi Lestari','x_ad')],g:[['CGK','DPS','10DEC'],['DPS','SIN','13DEC'],['SIN','KUL','16DEC'],['KUL','CGK','19DEC']],q:1,ph:'CGK 021-6660000 - A'},
+{t:['Keluarga dengan bayi (CGK-SIN)','Family with an infant (CGK-SIN)'],n:[D('WIJAYA/HENDRA MR','Hendra','x_ad'),D('WIJAYA/SARI MRS(INF/NAYLA MISS/05FEB26)','Sari + Nayla','x_in'),D('WIJAYA/DIMAS MSTR(CHD/10MAR18)','Dimas','x_ch')],g:[['CGK','SIN','18DEC'],['SIN','CGK','22DEC']],q:3,ph:'CGK 021-8880000 - A',note:tr('n_inf')},
+{t:['Rombongan 4 orang ke Jeddah','Group of 4 to Jeddah'],n:[D('HAMID/AHMAD MR','Ahmad Hamid'),D('HAMID/SITI MRS','Siti Hamid'),D('RAHMAN/YUSUF MR','Yusuf Rahman'),D('RAHMAN/AISYAH MRS','Aisyah Rahman')],g:[['CGK','JED','15JAN'],['JED','CGK','28JAN']],q:4,ph:'CGK 021-5552020 - A'},
+{t:['Sampai tiket terbit (2 dewasa)','Through to ticketing (2 adults)'],n:[D('PRATAMA/ANDI MR','Andi Pratama','x_ad'),D('PRATAMA/AYU MRS','Ayu Pratama','x_ad')],g:[['CGK','DPS','12DEC'],['DPS','CGK','16DEC']],q:2,ph:'CGK 021-7771111 - A',tkt:1},
+{t:['Void tiket di hari yang sama','Void a ticket on the same day'],n:[D('PRATAMA/BAYU MR','Bayu Pratama','x_ad')],g:[['CGK','SUB','14DEC']],q:1,ph:'CGK 021-7772222 - A',tkt:1,post:'void'},
+{t:['Reissue lalu refund','Reissue, then refund'],n:[D('KUSUMA/WULAN MRS','Wulan Kusuma','x_ad')],g:[['CGK','DPS','12DEC'],['DPS','CGK','16DEC']],q:1,ph:'CGK 021-7773333 - A',tkt:1,post:'rr'}]}
+function exSteps(e){const l=[];e.g.forEach(([f,t,d])=>{l.push([build(G,'avail',[d.slice(0,2),d.slice(2),f,t]),tr('s_av',f,t,d)]);l.push([build(G,'sell',[e.q,'Y',1]),tr('s_se',e.q)])});
+e.n.forEach(([tx,ds],i)=>l.push([build(G,'name',[tx]),tr('s_nm',i+1,ds)]));
+l.push([build(G,'phone',[e.ph]),tr('s_ap')],[build(G,'ttl',[ttl]),tr('s_tt')],[build(G,'rf',['WISNU']),tr('s_rf')],[build(G,'save'),tr('s_sv')]);
+if(e.tkt)l.push([build(G,'fare'),tr('s_fa')],[build(G,'tkt'),tr('s_tk')]);if(e.post==='void')l.push(['VOID',tr('s_vo')]);if(e.post==='rr')l.push(['REISSUE 2 18DEC',tr('s_re')],['NEXTDAY',tr('s_nd')],['REFUND',tr('s_rr')]);return l}
+function exTable(){const e=EXS()[$('#exsel').value||0];$('#extab').innerHTML=`<tr><th>#</th><th>${tr('th_cmd',GN[G])}</th><th>${tr('th_fn')}</th></tr>`+exSteps(e).map((s,i)=>`<tr><td>${i+1}</td><td><code>${s[0]}</code></td><td>${s[1]}</td></tr>`).join('')+(e.note?`<tr><td colspan="3"><b>${tr('note')}</b> ${e.note}</td></tr>`:'')}
+$('#exsel').onchange=exTable;
+$('#explay').onclick=async()=>{const e=EXS()[$('#exsel').value];reset();print(tr('x_h',e.t[lang]),'dim');for(const[c]of exSteps(e)){exec(c);await new Promise(r=>setTimeout(r,600))}};
+
+/* Tugas harian: dibuat acak dari tanggal hari ini */
+let ver=0,TK=[];const sel=$('#task');
+function genTasks(seed){const g=rng(seed),used=new Set(),RA=a=>a[Math.floor(g()*a.length)],I=(a,b)=>a+Math.floor(g()*(b-a+1)),tc=s=>s[0]+s.slice(1).toLowerCase();
+const pick=a=>{let x,k=0;do{x=RA(a)}while(used.has(x)&&k++<30);used.add(x);return x};
+const MF=['BUDI','ANDI','AGUS','DIMAS','RIZKI','FAJAR','HENDRA','BAYU','EKO','IRFAN','YUSUF','TOMI'],FF=['SARI','DEWI','RINA','AYU','NURUL','SITI','MAYA','PUTRI','LINA','WULAN','AISYAH','INDAH'],CB=['RAFI','ARKA','DAFFA','KEVIN','ALVIN'],CG=['NAYLA','KIRANA','ALYA','SALMA','ZAHRA'],SU=['SANTOSO','WIJAYA','HARTONO','PRATAMA','KUSUMA','LESTARI','RAHMAN','SETIAWAN','NUGROHO','HAKIM','SAPUTRA','HIDAYAT'];
+const man=su=>{const f=pick(MF);return{tx:`${su}/${f} MR`,ds:`${tc(f)} ${tc(su)} (MR)`}};
+const wom=(su,dep)=>{const f=pick(FF);if(!dep)return{tx:`${su}/${f} MRS`,ds:`${tc(f)} ${tc(su)} (MRS)`};const n=pick(CG),dob=dmy(addDays(dep,-I(150,500)));return{tx:`${su}/${f} MRS(INF/${n} MISS/${dob})`,ds:tr('w_inf',tc(f),tc(su),tc(n),dob)}};
+const kid=(su,dep)=>{const boy=g()<.5,n=pick(boy?CB:CG),t=boy?'MSTR':'MISS',dob=dmy(new Date(dep.getFullYear()-I(4,10),I(0,11),I(1,28)));return{tx:`${su}/${n} ${t}(CHD/${dob})`,ds:tr('k_d',tc(n),tc(su),t,dob)}};
+const any=su=>g()<.5?man(su):wom(su),RT=[['CGK','DPS'],['CGK','SUB'],['CGK','SIN'],['CGK','KUL']];
+const dts=(n,gap)=>{let d=addDays(today,I(20,70)),r=[];for(let i=0;i<n;i++){r.push(d);d=addDays(d,I(2,gap))}return r};
+const rt2=r=>{const[a,b]=dts(2,7);return[[r[0],r[1],a],[r[1],r[0],b]]};
+const mk=(title,pp,sg,q,x={})=>{const ph='021-'+I(2000000,8999999);return{t:title,ph,d:tr('td',pp.map(p=>p.ds).join('; '),sg.map(([a,b,d])=>`${a}-${b} <b>${fmt(d)}</b>`).join(', '),q,ph,ttl,x.note||''),s:{n:pp.map(p=>p.tx),g:sg.map(([a,b,d])=>[a,b,fmt(d)]),q,p:ph.slice(-7),tix:x.tix}}};
+const out=[];let r=RA(RT),su=pick(SU);
+out.push(mk(tr('tt1',r.join('-')),[any(su)],rt2(r),1));
+r=RA(RT);out.push(mk(tr('tt2',r[1]+'-'+r[0]),[any(pick(SU))],[[r[1],r[0],dts(1,1)[0]]],1));
+r=RA(RT);su=pick(SU);let sg=rt2(r);out.push(mk(tr('tt3',r.join('-')),[man(su),wom(su),kid(su,sg[0][2])],sg,3));
+r=RA(RT);su=pick(SU);sg=rt2(r);let pp=[man(su),wom(su,sg[0][2])];if(g()<.5)pp.push(kid(su,sg[0][2]));out.push(mk(tr('tt4',r.join('-')),pp,sg,pp.length,{note:tr('nt1')}));
+const CH=[['CGK','SIN','KUL','CGK'],['CGK','DPS','SIN','CGK'],['CGK','KUL','SIN','DPS','CGK'],['CGK','DPS','SIN','KUL','CGK']],ch=RA(CH),dd=dts(ch.length-1,4);
+out.push(mk(tr('tt5',ch.length-1,ch.join('-')),[any(pick(SU))],ch.slice(1).map((c,i)=>[ch[i],c,dd[i]]),1));
+r=RA([['CGK','JED'],['CGK','SIN'],['CGK','KUL']]);const s1=pick(SU),s2=pick(SU);out.push(mk(tr('tt6',r.join('-')),[man(s1),wom(s1),man(s2),wom(s2)],rt2(r),4));
+r=RA(RT);su=pick(SU);out.push(mk(tr('tt7',r.join('-')),[man(su),wom(su)],rt2(r),2,{tix:1,note:tr('nt2')}));
+r=RA(RT);su=pick(SU);sg=rt2(r);const f=mk(tr('tt8'),[man(su),wom(su),kid(su,sg[0][2])],sg,3),n=f.s.n,g0=f.s.g[0],d1=fmt(addDays(resolve(g0[2].slice(0,2),g0[2].slice(2)),1));
+f.d=tr('fx')+f.d;f.pre={n:[n[0],n[1].replace(/\/([A-Z]+)/,(m,b)=>'/'+b.slice(0,-1)+(b.slice(-1)==='A'?'I':'A')),n[2].replace(/\(.*\)$/,'')],sg:[{from:g0[0],to:g0[1],date:d1,st:'HK'},{from:f.s.g[1][0],to:f.s.g[1][1],date:f.s.g[1][2],st:'UC'}]};out.push(f);
+const pm=(pp,sg,nt)=>pp.map(p=>p.ds).join('; ')+'.<br>'+tr('rt_l')+sg.map(([a,b,d])=>`${a}-${b} <b>${fmt(d)}</b>`).join(', ')+'.'+nt;
+r=RA(RT);su=pick(SU);sg=rt2(r);let v=mk(tr('tt9'),[man(su),wom(su)],sg,2);v.d=pm([man(su),wom(su)],sg,tr('nt3'));v.s.kind='void';v.pi=0;out.push(v);
+r=RA(RT);su=pick(SU);sg=rt2(r);v=mk(tr('tt10'),[man(su),wom(su)],sg,2);v.d=pm([man(su),wom(su)],sg,tr('nt4'));v.s.kind='refund';v.pi=-1;out.push(v);
+r=RA(RT);su=pick(SU);sg=rt2(r);const nd=fmt(addDays(sg[1][2],3));v=mk(tr('tt11'),[man(su),wom(su)],sg,2);v.d=pm([man(su),wom(su)],sg,tr('nt5',nd));v.s.kind='reis';v.s.nd=nd;v.pi=0;out.push(v);return out}
+function loadTasks(){TK=genTasks(fmt(today)+today.getFullYear()+'#'+ver);sel.innerHTML='';TK.forEach((x,i)=>sel.add(new Option(`${i+1}. ${x.t}`,i)));$('#tdate').textContent=tr('t_date',tstr)+(ver?` #${ver+1}`:'');sel.onchange()}
+sel.onchange=()=>{$('#desc').innerHTML=TK[sel.value||0].d;$('#res').innerHTML=''};$('#more').onclick=()=>{ver++;loadTasks()};
+$('#go').onclick=()=>{reset();const x=TK[sel.value];if(x.s.kind)preIssued(x);
+if(x.pre){S.names=x.pre.n.map(text=>({text}));S.segs=x.pre.sg.map(s=>({al:'GA',no:800,cls:'Y',date:s.date,dow:dow(resolve(s.date.slice(0,2),s.date.slice(2))),from:s.from,to:s.to,dep:'0800',arr:'1100',n:x.s.q,st:s.st}));S.aps=['CGK '+x.ph+' - A'];S.tk={type:'TL',date:dayOff(-1)};S.rf='DINA';S.rl='QWE789'}
+print(tr('tk_h',x.t),'dim');if(x.pre||x.s.kind)print(show());$('#res').innerHTML='';$('#in').focus()};
+$('#chk').onclick=()=>{const s=TK[sel.value].s,r=[],add=(ok,t)=>r.push(`<div class="${ok?'ok':'bad'}">${ok?'✓':'✗'} ${t}</div>`);
+add(!!S.rl&&!S.dirty,tr('c_s'));add(S.names.length===s.n.length&&s.n.every(x=>S.names.some(n=>n.text===x)),tr('c_n'));
+s.g.forEach(([a,b,d])=>{const g=S.segs.find(x=>x.from===a&&x.to===b&&x.date===d);add(!!g&&g.st==='HK'&&g.n===s.q&&g.cls==='Y',tr('c_g',a,b,d,s.q))});
+add(S.segs.length===s.g.length,tr('c_k'));add(S.aps.some(a=>a.replace(/\D/g,'').includes(s.p)),tr('c_p'));add(!!S.rf,tr('c_r'));
+if(s.tix)add(S.fa.length>0&&S.tk&&S.tk.type==='OK',tr('c_t'));else add(!!S.tk&&S.tk.type==='TL'&&S.tk.date===ttl,tr('c_l',ttl));
+$('#res').innerHTML=r.join('')};
+
+/* Tanda air SAMPLE + penghalang tangkapan layar (hanya penghalang, bukan jaminan) */
+function wm(){let w=$('#wm');if(!w){w=document.createElement('div');w.id='wm';document.body.prepend(w)}
+const svg="<svg xmlns='http://www.w3.org/2000/svg' width='440' height='300'><text x='220' y='150' text-anchor='middle' dominant-baseline='middle' transform='rotate(-28 220 150)' font-family='Arial' font-weight='bold' font-size='84' fill='rgba(128,128,128,0.22)'>SAMPLE</text></svg>";
+w.style.backgroundImage='url("data:image/svg+xml;utf8,'+encodeURIComponent(svg)+'")'}
+wm();new MutationObserver(()=>{if(!$('#wm')||!$('#wm').style.backgroundImage)wm()}).observe(document.body,{childList:true,attributes:true,subtree:true,attributeFilter:['style']});
+document.addEventListener('contextmenu',e=>e.preventDefault());document.addEventListener('copy',e=>{if(e.target.id!=='in')e.preventDefault()});
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['p','s'].includes(e.key.toLowerCase()))e.preventDefault()});
+document.addEventListener('keyup',e=>{if(e.key==='PrintScreen'){try{navigator.clipboard.writeText('SAMPLE')}catch(x){}}});
+document.addEventListener('visibilitychange',()=>document.body.classList.toggle('away',document.hidden));
+
+
+const POST=[['void',['Void tiket','Void ticket'],['Membatalkan tiket yang terbit di hari yang sama. Biasanya tanpa biaya; kursi dilepas dan uang kembali penuh. Setelah lewat hari, gunakan refund.','Cancels a ticket issued on the same day. Usually free of charge; the seat is released and the fare returned in full. After that day, use refund.'],'VOID'],
+['refund',['Refund tiket','Refund ticket'],['Mengembalikan uang tiket yang belum terpakai sesuai aturan tarif. Ada potongan (di simulator: 10% + IDR 100.000 per tiket). Itinerari ikut dibatalkan.','Returns the money for an unused ticket under the fare rules. A deduction applies (in the simulator: 10% + IDR 100,000 per ticket). The itinerary is cancelled too.'],'REFUND'],
+['reissue',['Reissue (ubah tanggal)','Reissue (change date)'],['Menerbitkan ulang tiket dengan jadwal baru: REISSUE nomor-segmen tanggal-baru. Ada biaya perubahan (simulator: IDR 250.000 per tiket, bayi tidak dihitung) dan nomor tiket baru; nomor lama tercatat di baris FO.','Reissues the ticket with a new schedule: REISSUE segment-number new-date. A change fee applies (simulator: IDR 250,000 per ticket, infants not counted) and new ticket numbers are created; the old numbers are kept on FO lines.'],'REISSUE 2 {D}'],
+['nextday',['Maju 1 hari (simulasi)','Advance 1 day (simulation)'],['Hanya di simulator: memajukan hari agar kamu bisa mencoba aturan void (hanya hari yang sama) dan refund.','Simulator only: advances the day so you can try the void rule (same day only) and refund.'],'NEXTDAY']];
+function doIssue(){const al=S.segs[0].al,p=S.fare.rows,tn=()=>Array.from({length:10},()=>Math.floor(Math.random()*10)).join('');S.fa=[];
+S.names.forEach(n=>{S.fa.push(`FA PAX ${TC[al]}-${tn()}/ET${al}/IDR${p.find(x=>x.t===(n.chd?'CHD':'ADT')).tt}/${tstr}/JKT1A0001`);if(n.inf)S.fa.push(`FA INF ${TC[al]}-${tn()}/ET${al}/IDR${p.find(x=>x.t==='INF').tt}/${tstr}/JKT1A0001`)});S.fp='CASH/IDR';S.fv=al;S.tk={type:'OK'};S.issueDay=S.simDay}
+function preIssued(x){const s=x.s;S.names=s.n.map(text=>({text,chd:text.includes('(CHD/'),inf:text.includes('(INF/')}));
+S.segs=s.g.map(([f,t,d])=>{const dt=resolve(d.slice(0,2),d.slice(2)),a=mkAvail(f,t,dt).L[0];return{al:a.al,no:a.no,cls:'Y',date:d,dow:dow(dt),from:f,to:t,dep:a.dep,arr:a.arr,n:s.q,st:'HK'}});
+S.aps=['CGK '+x.ph+' - A'];S.rf='DINA';S.rl='QWE789';S.fare=price();doIssue();S.issueDay=x.pi}
+const LS={get(){try{return JSON.parse(localStorage.getItem('ltk')||'{}')}catch(e){return{}}},set(o){try{localStorage.setItem('ltk',JSON.stringify(o))}catch(e){}}};
+const dkey=fmt(today)+today.getFullYear(),tkey=i=>`${dkey}#${ver}:${i}`;
+function progRender(){const d=LS.get(),dn=d.done||[],tk=d.tries||0,td=dn.filter(k=>k.startsWith(dkey+'#')).length,days=new Set(dn.map(k=>k.split('#')[0])).size,pc=Math.min(100,Math.round(td/11*100));
+$('#prog').innerHTML=`<p>${tr('pg_t',td)}</p><div style="height:10px;background:var(--hl);border-radius:5px"><div style="width:${pc}%;height:10px;background:var(--ok);border-radius:5px"></div></div><p>${tr('pg_a',dn.length,days)}</p><p>${tr('pg_c',tk,tk?Math.round(dn.length/tk*100):0)}</p>`}
+$('#pgr').onclick=()=>{LS.set({});progRender();loadTasks()};
+function loadTasks(){TK=genTasks(dkey+'#'+ver);const dn=LS.get().done||[];sel.innerHTML='';TK.forEach((x,i)=>sel.add(new Option(`${dn.includes(tkey(i))?'✓ ':''}${i+1}. ${x.t}`,i)));$('#tdate').textContent=tr('t_date',tstr)+(ver?` #${ver+1}`:'');sel.onchange()}
+$('#chk').onclick=()=>{const x=TK[sel.value],s=x.s,r=[];let all=true;
+const add=(ok,t,h)=>{if(!ok)all=false;r.push(`<div class="${ok?'ok':'bad'}">${ok?'✓':'✗'} ${t}</div>${!ok&&h?`<div class="hint">💡 ${h}</div>`:''}`)};
+if(s.kind==='void')add(S.voided&&!S.fa.length&&!S.refunded,tr('c_v'),tr('h_v'));
+else if(s.kind==='refund')add(S.refunded&&S.refundAmt>0,tr('c_rf'),tr('h_rf'));
+else if(s.kind==='reis'){const g=S.segs[1];add(!!g&&g.date===s.nd&&g.st==='HK'&&S.fo.length>0&&S.fa.length>0,tr('c_ri',2,s.nd),tr('h_ri',s.nd))}
+else{add(!!S.rl&&!S.dirty,tr('c_s'),tr('h_s'));
+const bad=S.names.filter(n=>!s.n.includes(n.text)).map(n=>n.text),miss=s.n.filter(y=>!S.names.some(n=>n.text===y));
+add(S.names.length===s.n.length&&!miss.length,tr('c_n'),(S.names.length!==s.n.length?tr('h_nc',S.names.length,s.n.length)+' ':'')+(bad.length?tr('h_nm',bad.join(' | ')):tr('h_nmm',miss.length)));
+s.g.forEach(([a,b,d])=>{const g=S.segs.find(y=>y.from===a&&y.to===b&&y.date===d);add(!!g&&g.st==='HK'&&g.n===s.q&&g.cls==='Y',tr('c_g',a,b,d,s.q),!g?tr('h_g0',a,b,d):g.st!=='HK'?tr('h_gs',g.st):g.n!==s.q?tr('h_gq',g.n,s.q):tr('h_gc'))});
+add(S.segs.length===s.g.length,tr('c_k'),tr('h_k',S.segs.length,s.g.length));add(S.aps.some(a=>a.replace(/\D/g,'').includes(s.p)),tr('c_p'),tr('h_p'));add(!!S.rf,tr('c_r'),tr('h_r'));
+if(s.tix)add(S.fa.length>0&&S.tk&&S.tk.type==='OK',tr('c_t'),tr('h_t'));else add(!!S.tk&&S.tk.type==='TL'&&S.tk.date===ttl,tr('c_l',ttl),tr('h_l',ttl))}
+const d=LS.get();d.tries=(d.tries||0)+1;d.done=d.done||[];if(all&&!d.done.includes(tkey(sel.value))){d.done.push(tkey(sel.value));const o=sel.options[sel.value];o.text='✓ '+o.text}LS.set(d);
+$('#res').innerHTML=r.join('')+(all?`<p class="ok"><b>${tr('ok_all')}</b></p>`:'')};
+$('#sol').onclick=()=>{const x=TK[sel.value],s=x.s;let c=[];
+if(s.kind==='void')c=['VOID'];else if(s.kind==='refund')c=['REFUND'];else if(s.kind==='reis')c=['REISSUE 2 '+s.nd];
+else{if(x.pre)c.push('IG');s.g.forEach(([f,t,d])=>c.push(build(G,'avail',[d.slice(0,2),d.slice(2),f,t]),build(G,'sell',[s.q,'Y',1])));s.n.forEach(n=>c.push(build(G,'name',[n])));c.push(build(G,'phone',['CGK '+x.ph+' - A']),build(G,'ttl',[ttl]),build(G,'rf',['WISNU']),build(G,'save'));if(s.tix)c.push(build(G,'fare'),build(G,'tkt'))}
+$('#res').innerHTML=`<p>${tr('sol_h')}</p>`+c.map(z=>`<div><code>${z}</code></div>`).join('')};
+applyLang();exTable();setG('AMA');openS('tut');print(tr('w_hi',tstr),'dim');
+</script></body></html>
